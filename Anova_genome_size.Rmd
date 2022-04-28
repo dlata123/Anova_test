@@ -1,0 +1,53 @@
+---
+title: "Anova_for_genome size"
+output: html_document
+---
+
+# Upload Library
+```{r}
+library(dplyr)
+library(multcompView)
+```
+
+# Loading file 
+```{r}
+Data <- read.csv("review_work.csv")
+Data
+```
+
+# Calculating of mean and standard deviation.
+```{r}
+Data_mean_SD <-group_by(Data, Species) %>% summarise(count = n(),mean = mean(Genome_Size, na.rm = TRUE),sd = sd(Genome_Size, na.rm = TRUE))
+
+Data_mean_SD
+```
+
+# Anova analysis
+
+We are using one-way ANOVA to find out if there is a difference in genome sizes between the different species.
+
+```{r}
+res.aov <- aov(Genome_Size ~ Species, data = Data)
+summary(res.aov)
+```
+
+The p value of <2e-16 was the one I wrote in the manuscript.
+
+# There was a significant difference in genome sizes [F(5,42)= 597, p <2e-16 ] between the species.
+
+Now lets see which species are different using Post-hoc test.
+
+# Tukey post host test
+
+```{r}
+tukey <- TukeyHSD(res.aov)
+tukey
+```
+
+We can see which groups are different based on p value. Let's assign letter to make it easier to see different groups.
+
+# Creating compact letter display using multcompView
+```{r}
+tukey.cld <- multcompLetters4(res.aov, tukey)
+print(tukey.cld)
+```
